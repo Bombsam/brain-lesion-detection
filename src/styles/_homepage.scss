@@ -17,6 +17,7 @@
 
     .menu {
         margin-right: 150px;
+
         .dropdown {
             position: relative;
             display: inline-block;
@@ -26,15 +27,36 @@
             }
 
             button {
-                padding: 10px;
+                background-color: #007bff; // A nice shade of blue
+                margin: 0 0.5rem;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
                 cursor: pointer;
+                transition: background-color 0.3s, box-shadow 0.3s, border 0.3s;
+
+                &:hover {
+                    background-color: darken(#007bff, 10%); // Darken on hover
+                }
+
+                &:active {
+                    box-shadow: 0 2px #0056b3; // Shadow effect on active
+                }
+
+                @media (max-width: 600px) {
+                    padding: 8px 15px; // Smaller padding on smaller screens
+                    font-size: 14px;
+                }
+
                 // Other button styles
             }
 
             .dropdown-content {
                 display: none;
                 position: absolute;
-                background-color: #f9f9f9;
+                // background-color: #f9f9f9;
                 min-width: 160px;
                 box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
                 z-index: 1;
@@ -43,7 +65,19 @@
                     width: 100%;
                     text-align: left;
                     margin: 0;
-                    // Other button styles
+                    border-radius: 0;
+                    border-bottom: 1px solid #000;
+
+                    &:first-child {
+                        border-top-left-radius: 5px; // Adjust the radius value as needed
+                        border-top-right-radius: 5px;
+                    }
+
+                    &:last-child {
+                        border-bottom-left-radius: 5px;
+                        border-bottom-right-radius: 5px;
+                        border-bottom: none; // Remove the border-bottom for the last button if desired
+                    }
                 }
             }
         }
@@ -116,6 +150,7 @@ html {
     /* Add more styles if you want to style the progress further */
 }
 
-p, h1 {
+p,
+h1 {
     color: #000;
 }

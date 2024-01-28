@@ -3,7 +3,7 @@
   "name": "Ali's Project",
   "icons": [
     {
-      "src": "./images/4.jpg",
+      "src": "./images/logo.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }
