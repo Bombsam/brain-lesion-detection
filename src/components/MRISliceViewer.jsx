@@ -16,12 +16,14 @@ const MRISliceViewer = ({ niftiDimensions }) => {
     const canvasRefZ = useRef(null);
 
     useEffect(() => {
+        console.log({ coordinates })
         fetchSlices(coordinates);
     }, [coordinates]);
 
     const fetchSlices = async (coords) => {
         try {
             const response = await axios.post(apiUrl, coords);
+            console.log(response.data);
             setSlices(response.data);
         } catch (error) {
             console.error('Error fetching slices:', error);
@@ -52,30 +54,51 @@ const MRISliceViewer = ({ niftiDimensions }) => {
     const handleMouseMove = (axis, event) => {
         const canvas = axis === 'x' ? canvasRefX.current : axis === 'y' ? canvasRefY.current : canvasRefZ.current;
         if (canvas) {
-            console.log(event)
             const rect = canvas.getBoundingClientRect();
-            const position = axis === 'x' ? event.clientX - rect.left : event.clientY - rect.top;
-            const dimension = niftiDimensions[axis];
-            const newValue = Math.min(Math.max(0, position), dimension - 1); // Ensure within bounds
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
 
-            // ['x', 'y', 'z'].filter(a => a !== axis).forEach(a => {console.log(a)});
-            // Update only the other two coordinates
-            const newCoordinates = { ...coordinates, [axis]: Math.floor(newValue) };
-            ['x', 'y', 'z'].filter(a => a !== axis).forEach(a => {
-                setCoordinates(prev => ({ ...prev, [a]: newCoordinates[a] }));
-            });
+            // Calculate new coordinate values based on the clicked axis
+            let newX, newY, newZ;
+            switch (axis) {
+                case 'x':
+                    newY = Math.floor((y / rect.height) * niftiDimensions.y);
+                    newZ = Math.floor((x / rect.width) * niftiDimensions.z);
+                    setCoordinates(prev => ({ ...prev, y: newY, z: newZ }));
+                    break;
+                case 'y':
+                    newX = Math.floor((x / rect.width) * niftiDimensions.x);
+                    newZ = Math.floor((y / rect.height) * niftiDimensions.z);
+                    setCoordinates(prev => ({ ...prev, x: newX, z: newZ }));
+                    break;
+                case 'z':
+                    newX = Math.floor((x / rect.width) * niftiDimensions.x);
+                    newY = Math.floor((y / rect.height) * niftiDimensions.y);
+                    setCoordinates(prev => ({ ...prev, x: newX, y: newY }));
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
     return (
-        <div>
-            <h1>MRI Slice Viewer</h1>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <canvas ref={canvasRefX} width={200} height={200} onMouseDown={(e) => handleMouseMove('x', e)} />
-                <canvas ref={canvasRefY} width={200} height={200} onMouseDown={(e) => handleMouseMove('y', e)} />
-                <canvas ref={canvasRefZ} width={200} height={200} onMouseDown={(e) => handleMouseMove('z', e)} />
+        <>
+            <div style={{ margin: "0.5rem 2rem" }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <canvas ref={canvasRefX} width={200} height={200} onMouseDown={(e) => handleMouseMove('x', e)} />
+                    <canvas ref={canvasRefY} width={200} height={200} onMouseDown={(e) => handleMouseMove('y', e)} />
+                    <canvas ref={canvasRefZ} width={200} height={200} onMouseDown={(e) => handleMouseMove('z', e)} />
+                </div>
             </div>
-        </div>
+            {/* <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+                <div className="bg-white p-5 rounded-lg flex items-center flex-col">
+                    <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 mb-4"></div>
+                    <h2 className="text-center text-gray-800 text-xl font-semibold">Loading...</h2>
+                    <p className="w-1/3 text-center text-gray-500">Please wait while we process your request.</p>
+                </div>
+            </div> */}
+        </>
     );
 };
 
