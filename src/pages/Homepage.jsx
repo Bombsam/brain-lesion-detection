@@ -1,23 +1,25 @@
 import '../_styles.scss';
 // import ThreeDModel from '../components/ThreeDModel';
 import MRISliceViewer from '../components/MRISliceViewer';
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
+// import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
-
+import axios from 'axios';
 import * as React from 'react';
 import Tasks from '../components/Tasks';
+import { useEffect, useState, Fragment } from 'react';
 
 const Homepage = ({ setPageTitle, currentPageTitle }) => {
 
-    const [open, setOpen] = React.useState(false);
-    const [openUpload, setOpenUpload] = React.useState(false);
-    const [pagecontent, setPageContent] = React.useState(<></>);
+    const [open, setOpen] = useState(false);
+    const [openUpload, setOpenUpload] = useState(false);
+    const [pagecontent, setPageContent] = useState(<></>);
+    const [niftiDimensions, setNiftiDimensions] = useState({});
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -39,6 +41,26 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
         setPageTitle(title);
         setPageContent(content);
     };
+
+    const getDimensionsApiUrl = 'https://mglovvabftmddzfe6gm4htcmn40krqcg.lambda-url.ca-central-1.on.aws/get_dimensions';
+    const fetchDimensions = async (requestData) => {
+        try {
+            const response = await axios.post(getDimensionsApiUrl, requestData);
+            console.log(response.data["dimensions"]);
+            const [x, y, z] = response.data["dimensions"];
+            setNiftiDimensions({ x, y, z }); // Set as an object
+        } catch (error) {
+            console.error('Error fetching dimensions:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchDimensions(
+            {
+                "s3_key": "BraTS20_Training_030_t1.nii"
+            }
+        );
+    }, []);
 
     return (
         <>
@@ -70,18 +92,18 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
                 <div className="sidebar">
                     <img src="/images/load.svg" alt="load" className="sidebar-icon" onClick={() => handleClickOpenUpload()} />
                     <img src="/images/tasks.svg" alt="tasks" className="sidebar-icon" onClick={() => handleNavClick("Tasks", <Tasks />)} />
-                    <img src="/images/segmentation.svg" alt="segmentation" className="sidebar-icon" onClick={() => handleNavClick("MRI Slice Viewer", <MRISliceViewer niftiDimensions={{ x: 240, y: 240, z: 155 }} />)} />
+                    <img src="/images/segmentation.svg" alt="segmentation" className="sidebar-icon" onClick={() => handleNavClick("MRI Slice Viewer", <MRISliceViewer niftiDimensions={niftiDimensions} />)} />
                 </div>
                 {/* <ThreeDModel objPath="/models/Brain_Model.obj" /> */}
                 {pagecontent}
 
             </div>
-            <footer class="footer">
+            <footer className="footer">
                 <p className='m-0 me-4'>Status: Waiting for MRI Image</p>
                 <p className='m-0 me-2'>Progress:</p>
-                <div class="progress-bar"></div>
+                <div className="progress-bar"></div>
             </footer>
-            <React.Fragment>
+            <Fragment>
                 <Dialog
                     open={open}
                     onClose={handleClose}
@@ -107,8 +129,8 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
                         </Button>
                     </DialogActions> */}
                 </Dialog>
-            </React.Fragment>
-            <React.Fragment>
+            </Fragment>
+            <Fragment>
                 <Dialog
                     open={openUpload}
                     onClose={handleCloseUpload}
@@ -134,7 +156,7 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
                         </Button>
                     </DialogActions> */}
                 </Dialog>
-            </React.Fragment>
+            </Fragment>
         </>
     );
 };

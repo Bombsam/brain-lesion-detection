@@ -4,25 +4,31 @@ import PropTypes from 'prop-types';
 
 const MRISliceViewer = ({ niftiDimensions }) => {
     const [slices, setSlices] = useState({ x_slice: [], y_slice: [], z_slice: [] });
+    console.log({
+        niftiDimensions
+    })
     const [coordinates, setCoordinates] = useState({
-        x: Math.floor(niftiDimensions.x / 2),
-        y: Math.floor(niftiDimensions.y / 2),
-        z: Math.floor(niftiDimensions.z / 2)
+        x: Math.floor(niftiDimensions?.x / 2),
+        y: Math.floor(niftiDimensions?.y / 2),
+        z: Math.floor(niftiDimensions?.z / 2)
     });
-    const apiUrl = 'http://127.0.0.1:8000/get_slices/';
+    const getSlicesApiUrl = 'https://mglovvabftmddzfe6gm4htcmn40krqcg.lambda-url.ca-central-1.on.aws/get_slices';
 
     const canvasRefX = useRef(null);
     const canvasRefY = useRef(null);
     const canvasRefZ = useRef(null);
 
     useEffect(() => {
-        console.log({ coordinates })
-        fetchSlices(coordinates);
+        console.log({ coordinates });
+        fetchSlices({
+            "coordinates": coordinates,
+            "s3_key": "BraTS20_Training_030_t1.nii"
+        });
     }, [coordinates]);
 
     const fetchSlices = async (coords) => {
         try {
-            const response = await axios.post(apiUrl, coords);
+            const response = await axios.post(getSlicesApiUrl, coords);
             console.log(response.data);
             setSlices(response.data);
         } catch (error) {
