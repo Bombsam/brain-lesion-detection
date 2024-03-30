@@ -4,9 +4,6 @@ import PropTypes from 'prop-types';
 
 const MRISliceViewer = ({ niftiDimensions }) => {
     const [slices, setSlices] = useState({ x_slice: [], y_slice: [], z_slice: [] });
-    console.log({
-        niftiDimensions
-    })
     const [coordinates, setCoordinates] = useState({
         x: Math.floor(niftiDimensions?.x / 2),
         y: Math.floor(niftiDimensions?.y / 2),
@@ -92,9 +89,18 @@ const MRISliceViewer = ({ niftiDimensions }) => {
         <>
             <div style={{ margin: "0.5rem 2rem" }}>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <canvas ref={canvasRefX} width={200} height={200} onMouseDown={(e) => handleMouseMove('x', e)} />
-                    <canvas ref={canvasRefY} width={200} height={200} onMouseDown={(e) => handleMouseMove('y', e)} />
-                    <canvas ref={canvasRefZ} width={200} height={200} onMouseDown={(e) => handleMouseMove('z', e)} />
+                    <div>
+                        <canvas ref={canvasRefX} width={250} height={250} onMouseDown={(e) => handleMouseMove('x', e)} />
+                        <h3 className="text-left mt-2">X Dimension</h3>
+                    </div>
+                    <div>
+                        <canvas ref={canvasRefY} width={250} height={250} onMouseDown={(e) => handleMouseMove('y', e)} />
+                        <h3 className="text-left mt-2">Y Dimension</h3>
+                    </div>
+                    <div>
+                        <canvas ref={canvasRefZ} width={250} height={250} onMouseDown={(e) => handleMouseMove('z', e)} />
+                        <h3 className="text-left mt-2">Z Dimension</h3>
+                    </div>
                 </div>
             </div>
             {/* <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
