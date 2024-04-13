@@ -9,17 +9,18 @@ const Model = ({ objPath }) => {
 };
 
 const ThreeDModel = ({ objPath }) => {
-    return (
+    console.log({ objPath })
+    return objPath ? (
         <Canvas>
             <ambientLight intensity={0.5} />
             <directionalLight position={[5, 5, 5]} intensity={1} />
             <Suspense fallback={null}>
-                <Model objPath={objPath} />
-                <Environment preset="sunset" background />
+                <Model objPath={objPath?.href} />
+                <Environment preset="studio" background />
             </Suspense>
             <OrbitControls />
         </Canvas>
-    );
+    ) : <>No 3D View available, please import/select an MRI Image to get started!</>;
 };
 
 export default ThreeDModel;

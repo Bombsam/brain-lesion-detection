@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./_styles.scss";
 
@@ -12,9 +12,9 @@ function Content({ setPageTitle, currentPageTitle }) {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route 
-          path="/" 
-          element={<Homepage setPageTitle={setPageTitle} currentPageTitle={currentPageTitle} />} 
+        <Route
+          path="/"
+          element={<Homepage setPageTitle={setPageTitle} currentPageTitle={currentPageTitle} />}
         />
         <Route path="*" element={<Error404 />} />
       </Routes>
@@ -24,7 +24,7 @@ function Content({ setPageTitle, currentPageTitle }) {
 
 function App() {
   const [pageTitle, setPageTitle] = useState("Brain Lesion Detection and Segmentation System");
-  
+
   return (
     <Router>
       <Content setPageTitle={setPageTitle} currentPageTitle={pageTitle} />

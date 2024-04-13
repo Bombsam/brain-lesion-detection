@@ -1,12 +1,14 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import reportWebVitals from "./reportWebVitals";
+import { StrictMode } from "react";
+// import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <App />
+  <StrictMode>
+    <App />
+  </StrictMode>
 );
 
 // Log web vitals to the console
-reportWebVitals(console.log);
+// reportWebVitals(console.log);

@@ -9,7 +9,7 @@ const MRISliceViewer = ({ niftiDimensions }) => {
         y: Math.floor(niftiDimensions?.y / 2),
         z: Math.floor(niftiDimensions?.z / 2)
     });
-    const getSlicesApiUrl = 'https://mglovvabftmddzfe6gm4htcmn40krqcg.lambda-url.ca-central-1.on.aws/get_slices';
+    const getSlicesApiUrl = 'http://127.0.0.1:8000/get_slices';
 
     const canvasRefX = useRef(null);
     const canvasRefY = useRef(null);
@@ -25,7 +25,7 @@ const MRISliceViewer = ({ niftiDimensions }) => {
 
     const fetchSlices = async (coords) => {
         try {
-            const response = await axios.post(getSlicesApiUrl, coords);
+            const response = await axios.post(getSlicesApiUrl, coords["coordinates"]);
             console.log(response.data);
             setSlices(response.data);
         } catch (error) {
