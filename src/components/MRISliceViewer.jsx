@@ -1,15 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import TasksContext from '../contexts/TasksContext ';
 
 const MRISliceViewer = ({ niftiDimensions }) => {
+    const { currentTask } = useContext(TasksContext);
+    console.log({ currentTask })
     const [slices, setSlices] = useState({ x_slice: [], y_slice: [], z_slice: [] });
     const [coordinates, setCoordinates] = useState({
         x: Math.floor(niftiDimensions?.x / 2),
         y: Math.floor(niftiDimensions?.y / 2),
         z: Math.floor(niftiDimensions?.z / 2)
     });
-    const getSlicesApiUrl = 'http://127.0.0.1:8000/get_slices';
+    const getSlicesApiUrl = 'http://localhost:8000/get_slices';
 
     const canvasRefX = useRef(null);
     const canvasRefY = useRef(null);
@@ -19,13 +22,15 @@ const MRISliceViewer = ({ niftiDimensions }) => {
         console.log({ coordinates });
         fetchSlices({
             "coordinates": coordinates,
-            "s3_key": "BraTS20_Training_030_t1.nii"
+            "file_info": {
+                file_path: currentTask.name
+            }
         });
     }, [coordinates]);
 
     const fetchSlices = async (coords) => {
         try {
-            const response = await axios.post(getSlicesApiUrl, coords["coordinates"]);
+            const response = await axios.post(getSlicesApiUrl, coords);
             console.log(response.data);
             setSlices(response.data);
         } catch (error) {

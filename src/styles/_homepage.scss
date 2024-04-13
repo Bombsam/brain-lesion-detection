@@ -6,7 +6,8 @@
     background-color: #fff;
 
     .logo {
-        width: 50px; // Adjust as needed
+        width: 70px; // Adjust as needed
+        cursor: pointer;
     }
 
     .title {
@@ -96,7 +97,7 @@ body {
 }
 
 .sidebar {
-    width: 60px;
+    width: 70px;
     background-color: #fff;
     display: flex;
     flex-direction: column;
