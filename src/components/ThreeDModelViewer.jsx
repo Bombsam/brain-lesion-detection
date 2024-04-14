@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
-import { Suspense, useEffect, useState } from 'react';
-import { OrbitControls, Environment } from '@react-three/drei';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { Environment, OrbitControls } from '@react-three/drei';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import * as THREE from 'three'; // Ensure THREE is imported to use in materials
 
@@ -9,6 +9,7 @@ const Model = ({ objPath, material }) => {
 
     useEffect(() => {
         const loader = new OBJLoader();
+        console.log({ objPath })
         fetch(`http://localhost:8000/obj/${objPath}`)
             .then(response => response.blob())
             .then(blob => blob.text())
@@ -29,6 +30,15 @@ const Model = ({ objPath, material }) => {
 };
 
 const ThreeDModelViewer = ({ filename }) => {
+    const orbitControlsRef = useRef();
+
+    useEffect(() => {
+        // Whenever the filename changes, reset the controls
+        if (orbitControlsRef.current) {
+            orbitControlsRef.current.reset();
+        }
+    }, [filename]);
+
     const halfTransparentGray = new THREE.MeshStandardMaterial({
         color: 0x808080,
         opacity: 0.5,
@@ -41,21 +51,25 @@ const ThreeDModelViewer = ({ filename }) => {
     });
 
     return (
-        <Canvas>
+        <Canvas style={{ backgroundColor: '#e0e0e0' }}>
             <ambientLight intensity={0.5} />
             <directionalLight position={[5, 5, 5]} intensity={1} />
             <Suspense fallback={null}>
                 <Model objPath={`${filename}_brain.obj`} material={halfTransparentGray} />
                 <Model objPath={`${filename}_lesion.obj`} material={halfTransparentYellow} />
+                <Model objPath={`${filename}_lesion.obj`} material={halfTransparentYellow} />
                 <Environment preset="studio" background />
             </Suspense>
             <OrbitControls
+                ref={orbitControlsRef}
                 autoRotate={false}
                 rotateSpeed={1.5} // Default is 1, increase for faster rotation
-                zoomSpeed={4} // Default is 1, increase for faster zoom
+                zoomSpeed={5} // Default is 1, increase for faster zoom
                 panSpeed={4} // Default is 1, increase for faster panning
+                maxZoom={null}
             />
         </Canvas>
+
     );
 };
 

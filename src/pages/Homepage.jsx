@@ -9,10 +9,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Box from '@mui/material/Box';
-import LinearProgress from '@mui/material/LinearProgress';
 import axios from 'axios';
 import Tasks from '../components/Tasks';
 import TasksContext from '../contexts/TasksContext ';
+import { CircularProgress } from '@mui/material';
 
 const Homepage = ({ setPageTitle, currentPageTitle }) => {
     const [tasks, setTasks] = useState([]);
@@ -22,6 +22,7 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
     const [pagecontent, setPageContent] = useState(<h1 className='text-4xl text-center m-2 text-white'>Get started by uploading an MRI image!</h1>);
     const [niftiDimensions, setNiftiDimensions] = useState({});
     const [currentStatus, setCurrentStatus] = useState("Waiting for MRI Image");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (tasks.length > 0 && Object.keys(currentTask).length === 0) {
@@ -59,6 +60,7 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
     const getDimensionsApiUrl = 'http://localhost:8000/get_dimensions';
     const fetchDimensions = async (requestData) => {
         try {
+            console.log({ requestData })
             const response = await axios.post(getDimensionsApiUrl, requestData);
             console.log(response.data["dimensions"]);
             const [x, y, z] = response.data["dimensions"];
@@ -69,15 +71,17 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
     };
 
     useEffect(() => {
-        fetchDimensions(
-            {
-                "file_path": currentTask.name
-            }
-        );
+        if (currentTask.name)
+            fetchDimensions(
+                {
+                    "file_path": currentTask.name
+                }
+            );
     }, [currentTask]);
 
     const handleFileChange = async (event) => {
         event.preventDefault();
+        setLoading(true);
         const file = event.target.files[0];
         if (file) {
             console.log('File selected:', file.name);
@@ -94,47 +98,29 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
                 });
 
                 if (uploadResponse.ok) {
-                    setCurrentStatus("Processing Successful, saving the processed data");
 
                     const uploadResponseJson = await uploadResponse.json();
-                    console.log(uploadResponseJson);;
 
-                    setTasks(prevTasks => [...prevTasks, {
+                    const newTask = {
                         id: file.name,
                         name: JSON.parse(uploadResponseJson)["filename"],
                         imageSrc: '/images/brain-image.jpg',
                         imageAlt: file.name,
                         date: new Date().toLocaleDateString(),
-                    }]);
+                    };
 
-                    setCurrentStatus("Finished saving!")
+                    console.log({ newTask })
 
-                    // console.log('File upload successful, retrieving blob...');
-                    // const blob = await uploadResponse.blob();
-                    // console.log('Blob retrieved, preparing to re-upload...');
-
-                    // const newFormData = new FormData();
-                    // newFormData.append("file", blob, file.name + ".obj"); // Response we got from FastAPI
-
-                    // console.log('Attempting to save file on server...');
-                    // const saveResponse = await fetch('http://localhost:3001/api/save', { // have the response saved to the public directory
-                    //     method: 'POST',
-                    //     body: newFormData
-                    // });
-
-                    // if (saveResponse.ok) {
-                    //     console.log('File saved successfully to the server.');
-                    // } else {
-                    //     console.error('Failed to save file on the server:', saveResponse.statusText);
-                    // }
-
-                    // const saveResponseJson = await saveResponse.json();
-                    // console.log({ savedFileName: saveResponseJson["filename"] })
+                    setCurrentStatus("Processing Successful!");
+                    setTasks(prevTasks => [...prevTasks, newTask]);
+                    setCurrentTask(newTask);
+                    handleCloseUpload()
                 } else {
                     console.error('Error in file processing:', uploadResponse.statusText);
                     setCurrentStatus("Processing Failed, please retry");
                     setTimeout(setCurrentStatus("Waiting for MRI Image"), 5000)
                 }
+                setLoading(false);
             } catch (error) {
                 console.error('Error uploading file:', error);
             }
@@ -165,38 +151,12 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
 
                 </div>
 
-                <footer className="footer">
-                    <p className='m-0 me-4'>Status: {currentStatus}</p>
+                <footer className="footer flex items-center">
+                    <p className='m-0 ml-8 me-4'>Status: <span className='text-green-500'>{currentStatus}</span> </p>
+                    {loading && <CircularProgress color="secondary" />}
                     {/* <p className='m-0 me-2'>Progress:</p>
                     <div className="progress-bar"></div> */}
                 </footer>
-                <Fragment>
-                    <Dialog
-                        open={open}
-                        onClose={handleClose}
-                        fullWidth={true}
-                        maxWidth={"md"}
-                        aria-labelledby="alert-dialog-title"
-                        aria-describedby="alert-dialog-description"
-                    >
-                        <DialogTitle id="alert-dialog-title">
-                            {"Loading..."}
-                        </DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id="alert-dialog-description">
-                                <Box sx={{ width: '100%' }}>
-                                    <LinearProgress />
-                                </Box>
-                            </DialogContentText>
-                        </DialogContent>
-                        {/* <DialogActions>
-                        <Button onClick={handleClose}>Disagree</Button>
-                        <Button onClick={handleClose} autoFocus>
-                            Agree
-                        </Button>
-                    </DialogActions> */}
-                    </Dialog>
-                </Fragment>
                 <Fragment>
                     <Dialog
                         open={openUpload}
@@ -219,6 +179,7 @@ const Homepage = ({ setPageTitle, currentPageTitle }) => {
                                         accept=".nii.gz,.nii"
                                         style={{ display: 'block', margin: '20px auto' }}
                                     />
+                                    {loading && <CircularProgress color="secondary" />}
                                 </Box>
                             </DialogContentText>
                         </DialogContent>

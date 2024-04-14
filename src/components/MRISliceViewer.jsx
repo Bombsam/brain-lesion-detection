@@ -6,6 +6,8 @@ import TasksContext from '../contexts/TasksContext ';
 const MRISliceViewer = ({ niftiDimensions }) => {
     const { currentTask } = useContext(TasksContext);
     console.log({ currentTask })
+
+
     const [slices, setSlices] = useState({ x_slice: [], y_slice: [], z_slice: [] });
     const [coordinates, setCoordinates] = useState({
         x: Math.floor(niftiDimensions?.x / 2),
@@ -90,33 +92,40 @@ const MRISliceViewer = ({ niftiDimensions }) => {
         }
     };
 
-    return (
-        <>
-            <div style={{ margin: "0.5rem 2rem" }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <div>
-                        <canvas ref={canvasRefX} width={250} height={250} onMouseDown={(e) => handleMouseMove('x', e)} />
-                        <h3 className="text-left mt-2">X Dimension</h3>
-                    </div>
-                    <div>
-                        <canvas ref={canvasRefY} width={250} height={250} onMouseDown={(e) => handleMouseMove('y', e)} />
-                        <h3 className="text-left mt-2">Y Dimension</h3>
-                    </div>
-                    <div>
-                        <canvas ref={canvasRefZ} width={250} height={250} onMouseDown={(e) => handleMouseMove('z', e)} />
-                        <h3 className="text-left mt-2">Z Dimension</h3>
+    if (Object.keys(niftiDimensions).length > 0) {
+        return (
+            <>
+                <div style={{ margin: "0.5rem 2rem" }}>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <div>
+                            <canvas ref={canvasRefX} width={250} height={250} onMouseDown={(e) => handleMouseMove('x', e)} />
+                            <h3 className="text-left mt-2">X Dimension</h3>
+                        </div>
+                        <div>
+                            <canvas ref={canvasRefY} width={250} height={250} onMouseDown={(e) => handleMouseMove('y', e)} />
+                            <h3 className="text-left mt-2">Y Dimension</h3>
+                        </div>
+                        <div>
+                            <canvas ref={canvasRefZ} width={250} height={250} onMouseDown={(e) => handleMouseMove('z', e)} />
+                            <h3 className="text-left mt-2">Z Dimension</h3>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {/* <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-                <div className="bg-white p-5 rounded-lg flex items-center flex-col">
-                    <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 mb-4"></div>
-                    <h2 className="text-center text-gray-800 text-xl font-semibold">Loading...</h2>
-                    <p className="w-1/3 text-center text-gray-500">Please wait while we process your request.</p>
-                </div>
-            </div> */}
-        </>
-    );
+                {/* <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+                    <div className="bg-white p-5 rounded-lg flex items-center flex-col">
+                        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 mb-4"></div>
+                        <h2 className="text-center text-gray-800 text-xl font-semibold">Loading...</h2>
+                        <p className="w-1/3 text-center text-gray-500">Please wait while we process your request.</p>
+                    </div>
+                </div> */}
+            </>
+        );
+    } else {
+        return (
+            <h1 className='text-4xl text-center m-2 text-white'>Loading your current segmentation!</h1>
+        )
+    }
+
 };
 
 MRISliceViewer.propTypes = {
